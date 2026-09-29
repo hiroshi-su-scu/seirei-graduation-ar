@@ -1,50 +1,41 @@
-<!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>聖隷クリストファー大学 卒業式ARプロトタイプ</title>
-<script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-<style>
-html,body{margin:0;width:100%;height:100%;font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;background:#111;color:#fff}
-#ui{position:fixed;z-index:10;left:0;right:0;top:0;padding:18px 16px;text-align:center;background:linear-gradient(#000b,transparent);pointer-events:none}
-#ui h1{font-size:18px;margin:0 0 7px;font-weight:700}
-#status{font-size:14px;opacity:.9}
-#error{display:none;position:fixed;z-index:20;left:12px;right:12px;bottom:20px;padding:14px;border-radius:12px;background:#fff;color:#222;font-size:14px}
-</style>
+<!DOCTYPE html>
+
+<html lang="ja"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>聖隷クリストファー大学 卒業式AR</title>
+
+<style> * { box-sizing: border-box; } html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; } /* カメラ映像 */ #camera { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; } /* AR画面 */ #ar-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; } /* 卒業式看板 */ #sign { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 500px; padding: 20px 10px; text-align: center; background: rgba(255, 255, 255, 0.92); border: 5px solid #333; border-radius: 8px; color: #222; font-size: 28px; font-weight: bold; box-shadow: 0 5px 20px rgba(0,0,0,0.4); } #sign .university { font-size: 18px; margin-bottom: 12px; } #sign .title { font-size: 38px; letter-spacing: 0.15em; } /* 開始ボタン */ #start { position: fixed; z-index: 10; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 18px 35px; border: none; border-radius: 10px; background: #ffffff; color: #222; font-size: 20px; font-weight: bold; } #message { position: fixed; z-index: 11; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; padding: 10px; text-align: center; color: white; background: rgba(0,0,0,0.6); border-radius: 8px; font-size: 14px; } </style>
+
 </head>
+
 <body>
-<div id="ui"><h1>聖隷クリストファー大学 ARプロトタイプ</h1><div id="status">カメラを起動しています…</div></div>
-<div id="error"></div>
-<div class="example-container" style="position:absolute;width:100%;height:100%;overflow:hidden">
-<a-scene
-  mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: yes; uiScanning: yes; uiError: yes;"
-  embedded
-  color-space="sRGB"
-  renderer="colorManagement: true, physicallyCorrectLights"
-  vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: false">
-  <a-assets>
-    <img id="universityLogo" src="./聖隷クリストファー大学.png" crossorigin="anonymous">
-  </a-assets>
-  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-  <a-entity mindar-image-target="targetIndex: 0">
-    <a-plane src="#universityLogo" position="0 0.45 0.05" width="0.9" height="0.166" transparent="true"></a-plane>
-    <a-text value="Hello Seirei!" align="center" color="#ffffff" width="2.2" position="0 0.05 0.06" font="https://cdn.aframe.io/fonts/Roboto-msdf.json" shader="msdf"></a-text>
-    <a-text value="🎓  卒業おめでとう！" align="center" color="#ffffff" width="1.8" position="0 -0.25 0.06"></a-text>
-    <a-ring color="#ffffff" radius-inner="0.52" radius-outer="0.54" position="0 0 0.04" animation="property: rotation; to: 0 0 360; dur: 6000; loop: true; easing: linear"></a-ring>
-  </a-entity>
-</a-scene>
+
+<!-- カメラ -->
+
+<video id="camera" autoplay playsinline></video>
+
+<!-- AR表示 -->
+
+<div id="ar-screen">
+
+<div id="sign">
+  <div class="university">
+    聖隷クリストファー大学
+  </div>
+
+  <div class="title">
+    卒業式
+  </div>
 </div>
-<script>
-const scene=document.querySelector('a-scene');
-const status=document.getElementById('status');
-const err=document.getElementById('error');
-scene.addEventListener('arReady',()=>status.textContent='マーカーをカメラに映してください');
-scene.addEventListener('targetFound',()=>status.textContent='🎉 ARを認識しました！');
-scene.addEventListener('targetLost',()=>status.textContent='マーカーをカメラに映してください');
-scene.addEventListener('arError',()=>{err.style.display='block';err.textContent='ARを起動できませんでした。HTTPS接続とカメラ許可を確認してください。';});
-</script>
-</body>
-</html>
+
+</div>
+
+<!-- 開始ボタン -->
+
+<button id="start"> 📷 ARを開始 </button>
+
+<div id="message"> カメラを起動すると卒業式の看板が表示されます </div>
+
+<script> const camera = document.getElementById("camera"); const start = document.getElementById("start"); const message = document.getElementById("message"); start.addEventListener("click", async () => { try { const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false }); camera.srcObject = stream; start.style.display = "none"; message.textContent = "卒業式の看板を表示しています"; } catch (error) { console.error(error); message.textContent = "カメラを起動できませんでした。カメラの使用を許可してください。"; } }); </script>
+
+</body> </html>

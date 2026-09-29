@@ -121,7 +121,7 @@
 
 
     /* ========================================
-       操作説明
+       説明
        ======================================== */
 
     #help {
@@ -160,7 +160,7 @@
 
 
     /* ========================================
-       ボタン
+       ボタンエリア
        ======================================== */
 
     #controls {
@@ -174,9 +174,9 @@
 
       z-index: 20;
 
-      width: calc(100vw - 20px);
+      width: calc(100vw - 12px);
 
-      max-width: 600px;
+      max-width: 650px;
 
       display: flex;
 
@@ -184,7 +184,7 @@
 
       justify-content: center;
 
-      gap: 8px;
+      gap: 7px;
 
     }
 
@@ -195,9 +195,9 @@
 
       border-radius: 10px;
 
-      padding: 11px 13px;
+      padding: 10px 11px;
 
-      font-size: 14px;
+      font-size: 13px;
 
       font-weight: bold;
 
@@ -223,13 +223,42 @@
     }
 
 
+    button:disabled {
+
+      opacity: 0.45;
+
+    }
+
+
+    /* 撮影ボタン */
+
     #photoButton {
 
       background: #fff;
 
       font-size: 16px;
 
-      padding: 12px 18px;
+      padding: 11px 16px;
+
+    }
+
+
+    /* ズーム表示 */
+
+    #zoomValue {
+
+      min-width: 58px;
+
+      padding-left: 10px;
+
+      padding-right: 10px;
+
+      background:
+        rgba(0, 0, 0, 0.70);
+
+      color: white;
+
+      box-shadow: none;
 
     }
 
@@ -354,13 +383,13 @@
 
 
   <!-- ========================================
-       説明
+       操作説明
        ======================================== -->
 
   <div id="help">
 
     👆 1本指：看板を移動　
-    🤏 2本指：拡大・縮小
+    🤏 2本指：看板を拡大・縮小
 
   </div>
 
@@ -384,21 +413,41 @@
 
   <div id="controls">
 
+
     <button id="photoButton">
       📷 撮影
     </button>
+
+
+    <button id="zoomOutButton">
+      🔍 −
+    </button>
+
+
+    <button id="zoomValue">
+      1.0×
+    </button>
+
+
+    <button id="zoomInButton">
+      ＋
+    </button>
+
 
     <button id="resetButton">
       ↩️ リセット
     </button>
 
+
     <button id="toggleButton">
       👁 看板OFF
     </button>
 
+
     <button id="cameraButton">
       🔄 カメラ切替
     </button>
+
 
   </div>
 
@@ -429,6 +478,15 @@
     const photoButton =
       document.getElementById("photoButton");
 
+    const zoomOutButton =
+      document.getElementById("zoomOutButton");
+
+    const zoomInButton =
+      document.getElementById("zoomInButton");
+
+    const zoomValue =
+      document.getElementById("zoomValue");
+
     const resetButton =
       document.getElementById("resetButton");
 
@@ -446,9 +504,27 @@
        カメラ設定
        ======================================== */
 
-    let cameraFacing = "environment";
+    let cameraFacing =
+      "environment";
 
-    let currentStream = null;
+    let currentStream =
+      null;
+
+    let currentTrack =
+      null;
+
+
+    /* ========================================
+       ズーム設定
+       ======================================== */
+
+    let zoomMin = 1;
+
+    let zoomMax = 1;
+
+    let zoomStep = 0.1;
+
+    let currentZoom = 1;
 
 
     /* ========================================
@@ -459,7 +535,8 @@
 
       try {
 
-        message.style.display = "block";
+        message.style.display =
+          "block";
 
 
         /*
@@ -470,40 +547,40 @@
 
           currentStream
             .getTracks()
-            .forEach(track => {
-
-              track.stop();
-
-            });
+            .forEach(
+              track => track.stop()
+            );
 
         }
 
 
         /*
          * カメラ取得
-         *
-         * 解像度は固定しない。
-         * ブラウザ・端末が利用できる
-         * 適切な解像度を使用する。
          */
 
         const stream =
-          await navigator.mediaDevices.getUserMedia({
+          await navigator.mediaDevices
+            .getUserMedia({
 
-            video: {
+              video: {
 
-              facingMode: {
-                ideal: cameraFacing
-              }
+                facingMode: {
+                  ideal: cameraFacing
+                }
 
-            },
+              },
 
-            audio: false
+              audio: false
 
-          });
+            });
 
 
-        currentStream = stream;
+        currentStream =
+          stream;
+
+
+        currentTrack =
+          stream.getVideoTracks()[0];
 
 
         video.srcObject =
@@ -519,10 +596,12 @@
 
         /*
          * 内側カメラは
-         * 画面上では鏡像表示
+         * 鏡像表示
          */
 
-        if (cameraFacing === "user") {
+        if (
+          cameraFacing === "user"
+        ) {
 
           video.style.transform =
             "scaleX(-1)";
@@ -533,6 +612,13 @@
             "scaleX(1)";
 
         }
+
+
+        /*
+         * カメラのズーム性能を確認
+         */
+
+        setupZoom();
 
 
       } catch (error) {
@@ -550,6 +636,303 @@
 
 
     /* ========================================
+       ズーム機能の確認
+       ======================================== */
+
+    function setupZoom() {
+
+
+      if (!currentTrack) {
+
+        disableZoom();
+
+        return;
+
+      }
+
+
+      /*
+       * カメラが対応している機能を取得
+       */
+
+      const capabilities =
+        currentTrack.getCapabilities
+          ? currentTrack.getCapabilities()
+          : null;
+
+
+      /*
+       * ズーム非対応
+       */
+
+      if (
+        !capabilities ||
+        !("zoom" in capabilities)
+      ) {
+
+        zoomMin = 1;
+        zoomMax = 1;
+
+        currentZoom = 1;
+
+        updateZoomDisplay();
+
+        disableZoom();
+
+        return;
+
+      }
+
+
+      /*
+       * ズーム範囲
+       */
+
+      zoomMin =
+        capabilities.zoom.min;
+
+
+      zoomMax =
+        capabilities.zoom.max;
+
+
+      /*
+       * カメラによっては
+       * stepがかなり細かい場合がある。
+       */
+
+      if (
+        capabilities.zoom.step
+      ) {
+
+        zoomStep =
+          capabilities.zoom.step;
+
+      } else {
+
+        zoomStep = 0.1;
+
+      }
+
+
+      /*
+       * 初期値
+       */
+
+      currentZoom =
+        Math.max(
+          zoomMin,
+          Math.min(
+            1,
+            zoomMax
+          )
+        );
+
+
+      updateZoomDisplay();
+
+
+      /*
+       * 1倍しかない場合
+       */
+
+      if (
+        zoomMax <= zoomMin
+      ) {
+
+        disableZoom();
+
+      } else {
+
+        enableZoom();
+
+      }
+
+    }
+
+
+    /* ========================================
+       ズーム無効
+       ======================================== */
+
+    function disableZoom() {
+
+      zoomOutButton.disabled =
+        true;
+
+      zoomInButton.disabled =
+        true;
+
+      zoomValue.textContent =
+        "ズーム非対応";
+
+    }
+
+
+    /* ========================================
+       ズーム有効
+       ======================================== */
+
+    function enableZoom() {
+
+      zoomOutButton.disabled =
+        false;
+
+      zoomInButton.disabled =
+        false;
+
+      updateZoomDisplay();
+
+    }
+
+
+    /* ========================================
+       ズーム表示
+       ======================================== */
+
+    function updateZoomDisplay() {
+
+      if (
+        zoomMax <= zoomMin
+      ) {
+
+        zoomValue.textContent =
+          "1.0×";
+
+        return;
+
+      }
+
+
+      zoomValue.textContent =
+        currentZoom.toFixed(1) +
+        "×";
+
+    }
+
+
+    /* ========================================
+       実際のカメラズーム変更
+       ======================================== */
+
+    async function applyZoom(
+      newZoom
+    ) {
+
+      if (!currentTrack) {
+
+        return;
+
+      }
+
+
+      /*
+       * 値を範囲内に収める
+       */
+
+      newZoom =
+        Math.max(
+          zoomMin,
+          Math.min(
+            zoomMax,
+            newZoom
+          )
+        );
+
+
+      /*
+       * stepに合わせる
+       */
+
+      if (zoomStep > 0) {
+
+        newZoom =
+          Math.round(
+            newZoom /
+            zoomStep
+          ) *
+          zoomStep;
+
+      }
+
+
+      newZoom =
+        Math.max(
+          zoomMin,
+          Math.min(
+            zoomMax,
+            newZoom
+          )
+        );
+
+
+      try {
+
+        await currentTrack.applyConstraints({
+
+          advanced: [
+            {
+              zoom: newZoom
+            }
+          ]
+
+        });
+
+
+        currentZoom =
+          newZoom;
+
+
+        updateZoomDisplay();
+
+
+      } catch (error) {
+
+        console.error(
+          "ズーム変更エラー:",
+          error
+        );
+
+      }
+
+    }
+
+
+    /* ========================================
+       ズーム＋
+       ======================================== */
+
+    zoomInButton.addEventListener(
+      "click",
+      function () {
+
+        applyZoom(
+          currentZoom +
+          zoomStep
+        );
+
+      }
+    );
+
+
+    /* ========================================
+       ズーム－
+       ======================================== */
+
+    zoomOutButton.addEventListener(
+      "click",
+      function () {
+
+        applyZoom(
+          currentZoom -
+          zoomStep
+        );
+
+      }
+    );
+
+
+    /* ========================================
        カメラ切替
        ======================================== */
 
@@ -557,15 +940,19 @@
       "click",
       function () {
 
+
         if (
-          cameraFacing === "environment"
+          cameraFacing ===
+          "environment"
         ) {
 
-          cameraFacing = "user";
+          cameraFacing =
+            "user";
 
         } else {
 
-          cameraFacing = "environment";
+          cameraFacing =
+            "environment";
 
         }
 
@@ -600,7 +987,9 @@
 
       sign.style.transform =
         "translate(-50%, -50%) " +
-        "scale(" + signScale + ")";
+        "scale(" +
+        signScale +
+        ")";
 
     }
 
@@ -612,12 +1001,14 @@
        看板ON / OFF
        ======================================== */
 
-    let signVisible = true;
+    let signVisible =
+      true;
 
 
     toggleButton.addEventListener(
       "click",
       function () {
+
 
         signVisible =
           !signVisible;
@@ -655,15 +1046,34 @@
       "click",
       function () {
 
+
+        /*
+         * 看板をリセット
+         */
+
         signX =
           window.innerWidth / 2;
 
         signY =
           window.innerHeight / 2;
 
-        signScale = 1;
+        signScale =
+          1;
 
         updateSign();
+
+
+        /*
+         * カメラズームも1倍へ
+         */
+
+        if (
+          zoomMax > zoomMin
+        ) {
+
+          applyZoom(1);
+
+        }
 
       }
     );
@@ -673,12 +1083,15 @@
        タッチ操作
        ======================================== */
 
-    let dragging = false;
+    let dragging =
+      false;
 
     let startX = 0;
+
     let startY = 0;
 
     let startSignX = 0;
+
     let startSignY = 0;
 
     let startDistance = 0;
@@ -687,7 +1100,7 @@
 
 
     /* ----------------------------------------
-       2点間の距離
+       2点間距離
        ---------------------------------------- */
 
     function getDistance(
@@ -720,18 +1133,20 @@
       "touchstart",
       function (event) {
 
+
         event.preventDefault();
 
 
         /*
-         * 1本指：移動
+         * 1本指
          */
 
         if (
           event.touches.length === 1
         ) {
 
-          dragging = true;
+          dragging =
+            true;
 
 
           startX =
@@ -751,14 +1166,15 @@
 
 
         /*
-         * 2本指：拡大縮小
+         * 2本指
          */
 
         if (
           event.touches.length === 2
         ) {
 
-          dragging = false;
+          dragging =
+            false;
 
 
           startDistance =
@@ -788,6 +1204,7 @@
       "touchmove",
       function (event) {
 
+
         event.preventDefault();
 
 
@@ -804,16 +1221,20 @@
             event.touches[0].clientX -
             startX;
 
+
           const dy =
             event.touches[0].clientY -
             startY;
 
 
           signX =
-            startSignX + dx;
+            startSignX +
+            dx;
+
 
           signY =
-            startSignY + dy;
+            startSignY +
+            dy;
 
 
           updateSign();
@@ -822,7 +1243,7 @@
 
 
         /*
-         * 2本指：拡大縮小
+         * 2本指：看板拡大縮小
          */
 
         if (
@@ -836,7 +1257,9 @@
             );
 
 
-          if (startDistance > 0) {
+          if (
+            startDistance > 0
+          ) {
 
             const ratio =
               currentDistance /
@@ -844,7 +1267,8 @@
 
 
             signScale =
-              startScale * ratio;
+              startScale *
+              ratio;
 
 
             /*
@@ -855,7 +1279,8 @@
               signScale < 0.3
             ) {
 
-              signScale = 0.3;
+              signScale =
+                0.3;
 
             }
 
@@ -868,7 +1293,8 @@
               signScale > 4
             ) {
 
-              signScale = 4;
+              signScale =
+                4;
 
             }
 
@@ -894,11 +1320,13 @@
       "touchend",
       function (event) {
 
+
         if (
           event.touches.length === 0
         ) {
 
-          dragging = false;
+          dragging =
+            false;
 
         }
 
@@ -933,7 +1361,7 @@
 
 
         /* ------------------------------------
-           撮影フラッシュ
+           フラッシュ
            ------------------------------------ */
 
         flash.classList.remove(
@@ -966,7 +1394,7 @@
 
 
         /* ====================================
-           元カメラ映像の解像度
+           カメラ元解像度
            ==================================== */
 
         const videoWidth =
@@ -982,14 +1410,12 @@
 
 
         /*
-         * 元カメラ映像をできるだけ
-         * そのまま使う。
-         *
-         * ただし、画面と同じ縦横比に
-         * するため中央部分を切り出す。
+         * 画面と同じ比率になるよう
+         * 中央部分を切り出す
          */
 
         let sx = 0;
+
         let sy = 0;
 
         let sw =
@@ -1005,8 +1431,8 @@
         ) {
 
           /*
-           * 横長なので
-           * 左右を切り取る
+           * 横長
+           * 左右を切る
            */
 
           sw =
@@ -1015,13 +1441,14 @@
 
 
           sx =
-            (videoWidth - sw) / 2;
+            (videoWidth - sw) /
+            2;
 
         } else {
 
           /*
-           * 縦長なので
-           * 上下を切り取る
+           * 縦長
+           * 上下を切る
            */
 
           sh =
@@ -1030,29 +1457,15 @@
 
 
           sy =
-            (videoHeight - sh) / 2;
+            (videoHeight - sh) /
+            2;
 
         }
 
 
         /* ====================================
-           Canvasサイズ
+           Canvas
            ==================================== */
-
-        /*
-         * 切り出した範囲そのものを
-         * Canvasにする。
-         *
-         * つまり、可能な限り
-         * 元カメラの解像度を維持する。
-         */
-
-        const canvasWidth =
-          Math.round(sw);
-
-        const canvasHeight =
-          Math.round(sh);
-
 
         const canvas =
           document.createElement(
@@ -1060,11 +1473,16 @@
           );
 
 
+        /*
+         * 元カメラの解像度を
+         * できるだけ維持
+         */
+
         canvas.width =
-          canvasWidth;
+          Math.round(sw);
 
         canvas.height =
-          canvasHeight;
+          Math.round(sh);
 
 
         const ctx =
@@ -1072,7 +1490,7 @@
 
 
         /* ====================================
-           カメラ映像を描画
+           カメラ映像
            ==================================== */
 
         if (
@@ -1082,7 +1500,7 @@
           /*
            * 内側カメラ
            *
-           * 鏡像表示
+           * 鏡像
            */
 
           ctx.save();
@@ -1146,7 +1564,7 @@
 
 
         /* ====================================
-           看板を合成
+           看板合成
            ==================================== */
 
         if (signVisible) {
@@ -1193,41 +1611,34 @@
 
 
       /*
-       * 画面座標を
-       * 元カメラ映像座標へ変換
-       *
-       * 画面に表示されている
-       * カメラ範囲とCanvasの範囲を
-       * 対応させる。
+       * 画面座標とCanvas座標の比率
        */
 
-      const cameraScaleX =
+      const scaleX =
         canvas.width /
         window.innerWidth;
 
 
-      const cameraScaleY =
+      const scaleY =
         canvas.height /
         window.innerHeight;
 
 
       let drawX =
         signX *
-        cameraScaleX;
+        scaleX;
 
 
       let drawY =
         signY *
-        cameraScaleY;
+        scaleY;
 
 
       /*
-       * 内側カメラの場合
+       * 内側カメラ
        *
-       * 背景を左右反転しているため
-       * 看板の位置だけ左右反転。
-       *
-       * 看板画像そのものは反転しない。
+       * 背景が左右反転しているので
+       * 看板の位置だけ左右反転
        */
 
       if (
@@ -1257,16 +1668,16 @@
 
       const drawWidth =
         displayedWidth *
-        cameraScaleX;
+        scaleX;
 
 
       const drawHeight =
         displayedHeight *
-        cameraScaleY;
+        scaleY;
 
 
       /* ====================================
-         左上座標
+         左上
          ==================================== */
 
       const x =
@@ -1313,7 +1724,7 @@
 
 
       /*
-       * 現在日時
+       * 日時
        */
 
       const now =
@@ -1356,9 +1767,6 @@
 
       /*
        * ファイル名
-       *
-       * 例：
-       * seirei-graduation-ar-20260929-161530.png
        */
 
       const fileName =
@@ -1366,7 +1774,7 @@
 
 
       /* ====================================
-         PNG作成
+         PNG
          ==================================== */
 
       canvas.toBlob(

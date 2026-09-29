@@ -1,41 +1,1210 @@
 <!DOCTYPE html>
+<html lang="ja">
 
-<html lang="ja"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1.0,
+               maximum-scale=1.0,
+               user-scalable=no">
 
 <title>聖隷クリストファー大学 卒業式AR</title>
 
-<style> * { box-sizing: border-box; } html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; } /* カメラ映像 */ #camera { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; } /* AR画面 */ #ar-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; } /* 卒業式看板 */ #sign { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 500px; padding: 20px 10px; text-align: center; background: rgba(255, 255, 255, 0.92); border: 5px solid #333; border-radius: 8px; color: #222; font-size: 28px; font-weight: bold; box-shadow: 0 5px 20px rgba(0,0,0,0.4); } #sign .university { font-size: 18px; margin-bottom: 12px; } #sign .title { font-size: 38px; letter-spacing: 0.15em; } /* 開始ボタン */ #start { position: fixed; z-index: 10; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 18px 35px; border: none; border-radius: 10px; background: #ffffff; color: #222; font-size: 20px; font-weight: bold; } #message { position: fixed; z-index: 11; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; padding: 10px; text-align: center; color: white; background: rgba(0,0,0,0.6); border-radius: 8px; font-size: 14px; } </style>
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+
+  margin: 0;
+  padding: 0;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  background: #000;
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+}
+
+
+/* カメラ */
+
+#camera {
+
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  z-index: 1;
+
+}
+
+
+/* AR表示領域 */
+
+#ar {
+
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  z-index: 2;
+
+  pointer-events: none;
+
+}
+
+
+/* 卒業式看板 */
+
+#sign {
+
+  position: absolute;
+
+  width: 320px;
+
+  left: 50%;
+  top: 45%;
+
+  transform:
+    translate(-50%, -50%)
+    rotate(0deg);
+
+  transform-origin: center center;
+
+  padding: 20px 25px;
+
+  background:
+    rgba(255,255,255,0.94);
+
+  border:
+    5px solid #333;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 8px 30px
+    rgba(0,0,0,0.45);
+
+  text-align: center;
+
+  color: #222;
+
+  pointer-events: auto;
+
+  touch-action: none;
+
+  user-select: none;
+
+}
+
+
+/* 大学名 */
+
+.university {
+
+  font-size: 18px;
+
+  font-weight: bold;
+
+  margin-bottom: 10px;
+
+}
+
+
+/* ロゴ */
+
+.logo {
+
+  width: 75px;
+
+  height: 75px;
+
+  object-fit: contain;
+
+  margin-bottom: 5px;
+
+}
+
+
+/* 卒業式 */
+
+.title {
+
+  font-size: 40px;
+
+  font-weight: bold;
+
+  letter-spacing: 0.15em;
+
+}
+
+
+/* 年度 */
+
+.year {
+
+  margin-top: 8px;
+
+  font-size: 16px;
+
+}
+
+
+/* 開始画面 */
+
+#startScreen {
+
+  position: fixed;
+
+  z-index: 10;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background:
+    rgba(0,0,0,0.85);
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: center;
+
+  color: white;
+
+  text-align: center;
+
+}
+
+
+/* 開始ボタン */
+
+#startButton {
+
+  margin-top: 25px;
+
+  padding: 16px 35px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: white;
+
+  color: #222;
+
+  font-size: 20px;
+
+  font-weight: bold;
+
+}
+
+
+/* 操作説明 */
+
+#help {
+
+  position: fixed;
+
+  z-index: 5;
+
+  bottom: 70px;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: 90%;
+
+  max-width: 500px;
+
+  padding: 10px;
+
+  border-radius: 10px;
+
+  background:
+    rgba(0,0,0,0.6);
+
+  color: white;
+
+  text-align: center;
+
+  font-size: 14px;
+
+}
+
+
+/* ボタン */
+
+#controls {
+
+  position: fixed;
+
+  z-index: 6;
+
+  bottom: 15px;
+
+  left: 0;
+
+  width: 100%;
+
+  display: flex;
+
+  justify-content: center;
+
+  gap: 10px;
+
+}
+
+
+.controlButton {
+
+  padding: 10px 16px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background:
+    rgba(0,0,0,0.7);
+
+  color: white;
+
+  font-size: 14px;
+
+}
+
+
+/* シャッター */
+
+#photoButton {
+
+  width: 64px;
+
+  height: 64px;
+
+  border-radius: 50%;
+
+  border: 5px solid white;
+
+  background: white;
+
+  box-shadow:
+    0 2px 10px
+    rgba(0,0,0,0.4);
+
+}
+
+
+/* 非表示 */
+
+.hidden {
+
+  display: none !important;
+
+}
+
+</style>
 
 </head>
 
+
 <body>
+
 
 <!-- カメラ -->
 
-<video id="camera" autoplay playsinline></video>
+<video
+  id="camera"
+  autoplay
+  playsinline>
+</video>
 
-<!-- AR表示 -->
 
-<div id="ar-screen">
+<!-- AR -->
 
-<div id="sign">
-  <div class="university">
-    聖隷クリストファー大学
+<div id="ar">
+
+
+  <div id="sign">
+
+
+    <!-- 大学ロゴ -->
+
+    <img
+      class="logo"
+      src="聖隷クリストファー大学.png"
+      alt="聖隷クリストファー大学">
+
+
+    <div class="university">
+      聖隷クリストファー大学
+    </div>
+
+
+    <div class="title">
+      卒業式
+    </div>
+
+
+    <div class="year">
+      2027年度
+    </div>
+
+
   </div>
 
-  <div class="title">
-    卒業式
-  </div>
-</div>
 
 </div>
 
-<!-- 開始ボタン -->
 
-<button id="start"> 📷 ARを開始 </button>
+<!-- 開始画面 -->
 
-<div id="message"> カメラを起動すると卒業式の看板が表示されます </div>
+<div id="startScreen">
 
-<script> const camera = document.getElementById("camera"); const start = document.getElementById("start"); const message = document.getElementById("message"); start.addEventListener("click", async () => { try { const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false }); camera.srcObject = stream; start.style.display = "none"; message.textContent = "卒業式の看板を表示しています"; } catch (error) { console.error(error); message.textContent = "カメラを起動できませんでした。カメラの使用を許可してください。"; } }); </script>
+  <h1>
+    🎓 卒業式AR
+  </h1>
 
-</body> </html>
+  <p>
+    カメラを使って<br>
+    卒業式の看板を表示します
+  </p>
+
+  <button id="startButton">
+    📷 カメラを起動
+  </button>
+
+</div>
+
+
+<!-- 操作説明 -->
+
+<div id="help">
+
+  👆 1本指：看板を移動　
+  🤏 2本指：拡大・縮小・回転
+
+</div>
+
+
+<!-- 操作ボタン -->
+
+<div id="controls">
+
+  <button
+    class="controlButton"
+    id="resetButton">
+    ↺ リセット
+  </button>
+
+
+  <button
+    id="photoButton"
+    aria-label="写真を撮影">
+  </button>
+
+
+  <button
+    class="controlButton"
+    id="hideButton">
+    看板OFF
+  </button>
+
+</div>
+
+
+
+<script>
+
+
+/* =========================================
+   カメラ
+========================================= */
+
+const camera =
+  document.getElementById("camera");
+
+const startScreen =
+  document.getElementById("startScreen");
+
+const startButton =
+  document.getElementById("startButton");
+
+
+let stream = null;
+
+
+startButton.addEventListener(
+  "click",
+  async function() {
+
+    try {
+
+      stream =
+        await navigator.mediaDevices.getUserMedia({
+
+          video: {
+
+            facingMode: {
+              ideal: "environment"
+            },
+
+            width: {
+              ideal: 1920
+            },
+
+            height: {
+              ideal: 1080
+            }
+
+          },
+
+          audio: false
+
+        });
+
+
+      camera.srcObject = stream;
+
+
+      startScreen.classList.add(
+        "hidden"
+      );
+
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "カメラを起動できませんでした。\n" +
+        "ブラウザのカメラ使用を許可してください。"
+      );
+
+    }
+
+  }
+);
+
+
+
+/* =========================================
+   看板
+========================================= */
+
+const sign =
+  document.getElementById("sign");
+
+
+let x = 0;
+let y = 0;
+
+let scale = 1;
+let rotation = 0;
+
+
+/* 指操作 */
+
+let startX = 0;
+let startY = 0;
+
+let startDistance = 0;
+let startAngle = 0;
+
+let startScale = 1;
+let startRotation = 0;
+
+let dragging = false;
+
+
+
+/* 看板の初期位置 */
+
+function resetSign() {
+
+  x = 0;
+  y = 0;
+
+  scale = 1;
+
+  rotation = 0;
+
+  updateSign();
+
+}
+
+
+function updateSign() {
+
+  sign.style.transform =
+
+    "translate(calc(-50% + " +
+    x + "px), calc(-50% + " +
+    y + "px)) " +
+
+    "scale(" +
+    scale +
+    ") " +
+
+    "rotate(" +
+    rotation +
+    "deg)";
+
+}
+
+
+resetSign();
+
+
+
+/* =========================================
+   指1本・2本操作
+========================================= */
+
+
+sign.addEventListener(
+  "touchstart",
+  function(event) {
+
+    event.preventDefault();
+
+
+    if (
+      event.touches.length === 1
+    ) {
+
+      dragging = true;
+
+      startX =
+        event.touches[0].clientX;
+
+      startY =
+        event.touches[0].clientY;
+
+    }
+
+
+    if (
+      event.touches.length === 2
+    ) {
+
+      dragging = false;
+
+
+      const p1 =
+        event.touches[0];
+
+      const p2 =
+        event.touches[1];
+
+
+      startDistance =
+        distance(p1, p2);
+
+
+      startAngle =
+        angle(p1, p2);
+
+
+      startScale =
+        scale;
+
+
+      startRotation =
+        rotation;
+
+    }
+
+  },
+  { passive: false }
+);
+
+
+
+sign.addEventListener(
+  "touchmove",
+  function(event) {
+
+    event.preventDefault();
+
+
+    /* -------------------------
+       1本指
+    ------------------------- */
+
+    if (
+      event.touches.length === 1 &&
+      dragging
+    ) {
+
+      const dx =
+        event.touches[0].clientX
+        - startX;
+
+      const dy =
+        event.touches[0].clientY
+        - startY;
+
+
+      x += dx;
+      y += dy;
+
+
+      startX =
+        event.touches[0].clientX;
+
+      startY =
+        event.touches[0].clientY;
+
+
+      updateSign();
+
+    }
+
+
+    /* -------------------------
+       2本指
+    ------------------------- */
+
+    if (
+      event.touches.length === 2
+    ) {
+
+      const p1 =
+        event.touches[0];
+
+      const p2 =
+        event.touches[1];
+
+
+      const currentDistance =
+        distance(p1, p2);
+
+
+      const currentAngle =
+        angle(p1, p2);
+
+
+      /* 拡大縮小 */
+
+      scale =
+        startScale *
+        (
+          currentDistance /
+          startDistance
+        );
+
+
+      /* 大きくなりすぎない */
+
+      scale =
+        Math.max(
+          0.4,
+          Math.min(3, scale)
+        );
+
+
+      /* 回転 */
+
+      rotation =
+        startRotation +
+        (
+          currentAngle -
+          startAngle
+        );
+
+
+      updateSign();
+
+    }
+
+  },
+  { passive: false }
+);
+
+
+
+sign.addEventListener(
+  "touchend",
+  function(event) {
+
+    if (
+      event.touches.length === 0
+    ) {
+
+      dragging = false;
+
+    }
+
+  }
+);
+
+
+
+/* 距離 */
+
+function distance(p1, p2) {
+
+  const dx =
+    p1.clientX -
+    p2.clientX;
+
+  const dy =
+    p1.clientY -
+    p2.clientY;
+
+  return Math.sqrt(
+    dx * dx +
+    dy * dy
+  );
+
+}
+
+
+/* 角度 */
+
+function angle(p1, p2) {
+
+  return Math.atan2(
+
+    p2.clientY -
+    p1.clientY,
+
+    p2.clientX -
+    p1.clientX
+
+  ) * 180 / Math.PI;
+
+}
+
+
+
+/* =========================================
+   リセット
+========================================= */
+
+document
+  .getElementById("resetButton")
+  .addEventListener(
+    "click",
+    resetSign
+  );
+
+
+
+/* =========================================
+   看板ON/OFF
+========================================= */
+
+document
+  .getElementById("hideButton")
+  .addEventListener(
+    "click",
+    function() {
+
+      sign.classList.toggle(
+        "hidden"
+      );
+
+
+      if (
+        sign.classList.contains(
+          "hidden"
+        )
+      ) {
+
+        this.textContent =
+          "看板ON";
+
+      } else {
+
+        this.textContent =
+          "看板OFF";
+
+      }
+
+    }
+  );
+
+
+
+/* =========================================
+   写真撮影
+========================================= */
+
+document
+  .getElementById("photoButton")
+  .addEventListener(
+    "click",
+    takePhoto
+  );
+
+
+function takePhoto() {
+
+  if (
+    camera.readyState < 2
+  ) {
+
+    alert(
+      "カメラがまだ準備できていません。"
+    );
+
+    return;
+
+  }
+
+
+  const canvas =
+    document.createElement(
+      "canvas"
+    );
+
+
+  canvas.width =
+    camera.videoWidth;
+
+  canvas.height =
+    camera.videoHeight;
+
+
+  const ctx =
+    canvas.getContext("2d");
+
+
+  /* カメラ映像 */
+
+  ctx.drawImage(
+
+    camera,
+
+    0,
+    0,
+
+    canvas.width,
+    canvas.height
+
+  );
+
+
+  /* 看板 */
+
+  if (
+    !sign.classList.contains(
+      "hidden"
+    )
+  ) {
+
+    drawSignOnCanvas(
+      ctx,
+      canvas
+    );
+
+  }
+
+
+  /* 保存 */
+
+  canvas.toBlob(
+    function(blob) {
+
+      const url =
+        URL.createObjectURL(blob);
+
+
+      const a =
+        document.createElement("a");
+
+
+      a.href = url;
+
+      a.download =
+        "seirei-graduation-ar.png";
+
+
+      a.click();
+
+
+      URL.revokeObjectURL(url);
+
+    },
+    "image/png"
+  );
+
+}
+
+
+
+/* =========================================
+   看板を写真に描画
+========================================= */
+
+function drawSignOnCanvas(
+  ctx,
+  canvas
+) {
+
+  const rect =
+    sign.getBoundingClientRect();
+
+
+  const videoRect =
+    camera.getBoundingClientRect();
+
+
+  const ratioX =
+    canvas.width /
+    videoRect.width;
+
+  const ratioY =
+    canvas.height /
+    videoRect.height;
+
+
+  const centerX =
+    (
+      rect.left +
+      rect.width / 2
+      -
+      videoRect.left
+    ) * ratioX;
+
+
+  const centerY =
+    (
+      rect.top +
+      rect.height / 2
+      -
+      videoRect.top
+    ) * ratioY;
+
+
+  const width =
+    rect.width * ratioX;
+
+  const height =
+    rect.height * ratioY;
+
+
+  ctx.save();
+
+
+  ctx.translate(
+    centerX,
+    centerY
+  );
+
+
+  ctx.rotate(
+    rotation *
+    Math.PI / 180
+  );
+
+
+  ctx.scale(
+    scale,
+    scale
+  );
+
+
+  /* 看板背景 */
+
+  const w =
+    width;
+
+  const h =
+    height;
+
+
+  ctx.fillStyle =
+    "rgba(255,255,255,0.94)";
+
+
+  ctx.strokeStyle =
+    "#333";
+
+
+  ctx.lineWidth =
+    5;
+
+
+  roundRect(
+    ctx,
+    -w / 2,
+    -h / 2,
+    w,
+    h,
+    12
+  );
+
+
+  ctx.fill();
+
+  ctx.stroke();
+
+
+  /* 大学名 */
+
+  ctx.fillStyle =
+    "#222";
+
+
+  ctx.textAlign =
+    "center";
+
+
+  ctx.font =
+    "bold " +
+    (18 * ratioX) +
+    "px sans-serif";
+
+
+  ctx.fillText(
+    "聖隷クリストファー大学",
+    0,
+    -h * 0.12
+  );
+
+
+  /* 卒業式 */
+
+  ctx.font =
+    "bold " +
+    (40 * ratioX) +
+    "px sans-serif";
+
+
+  ctx.fillText(
+    "卒業式",
+    0,
+    h * 0.15
+  );
+
+
+  /* 年度 */
+
+  ctx.font =
+    (16 * ratioX) +
+    "px sans-serif";
+
+
+  ctx.fillText(
+    "2027年度",
+    0,
+    h * 0.35
+  );
+
+
+  ctx.restore();
+
+}
+
+
+
+/* 角丸長方形 */
+
+function roundRect(
+  ctx,
+  x,
+  y,
+  width,
+  height,
+  radius
+) {
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x + radius,
+    y
+  );
+
+  ctx.lineTo(
+    x + width - radius,
+    y
+  );
+
+  ctx.quadraticCurveTo(
+    x + width,
+    y,
+    x + width,
+    y + radius
+  );
+
+  ctx.lineTo(
+    x + width,
+    y + height - radius
+  );
+
+  ctx.quadraticCurveTo(
+    x + width,
+    y + height,
+    x + width - radius,
+    y + height
+  );
+
+  ctx.lineTo(
+    x + radius,
+    y + height
+  );
+
+  ctx.quadraticCurveTo(
+    x,
+    y + height,
+    x,
+    y + height - radius
+  );
+
+  ctx.lineTo(
+    x,
+    y + radius
+  );
+
+  ctx.quadraticCurveTo(
+    x,
+    y,
+    x + radius,
+    y
+  );
+
+  ctx.closePath();
+
+}
+
+
+</script>
+
+</body>
+
+</html>

@@ -1,1097 +1,648 @@
 <!DOCTYPE html>
-
 <html lang="ja">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-   content="width=device-width,
-            initial-scale=1.0,
-            maximum-scale=1.0,
-            user-scalable=no">
-
-<title>聖隷クリストファー大学 AR</title>
-
-<style>
-
-/* =========================================
-   基本設定
-========================================= */
-
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-
-  margin: 0;
-  padding: 0;
-
-  width: 100%;
-  height: 100%;
-
-  overflow: hidden;
-
-  background: #000;
-
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Helvetica Neue",
-    Arial,
-    sans-serif;
-
-}
-
-
-/* =========================================
-   カメラ
-========================================= */
-
-#camera {
-
-  position: fixed;
-
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 100%;
-
-  object-fit: cover;
-
-  z-index: 1;
-
-}
-
-
-/* =========================================
-   AR表示領域
-========================================= */
-
-#ar {
-
-  position: fixed;
-
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 100%;
-
-  z-index: 2;
-
-  pointer-events: none;
-
-}
-
-
-/* =========================================
-   PNG看板
-========================================= */
-
-#sign {
-
-  position: absolute;
-
-  width: 80%;
-
-  max-width: 500px;
-
-  left: 50%;
-  top: 45%;
-
-  transform:
-    translate(-50%, -50%)
-    rotate(0deg);
-
-  transform-origin: center center;
-
-  pointer-events: auto;
-
-  touch-action: none;
-
-  user-select: none;
-
-}
-
-
-/* PNGそのもの */
-
-#sign img {
-
-  display: block;
-
-  width: 100%;
-
-  height: auto;
-
-  pointer-events: none;
-
-  user-select: none;
-
-}
-
-
-/* =========================================
-   開始画面
-========================================= */
-
-#startScreen {
-
-  position: fixed;
-
-  z-index: 10;
-
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 100%;
-
-  background:
-    rgba(0,0,0,0.85);
-
-  display: flex;
-
-  flex-direction: column;
-
-  justify-content: center;
-
-  align-items: center;
-
-  color: white;
-
-  text-align: center;
-
-}
-
-
-/* 開始ボタン */
-
-#startButton {
-
-  margin-top: 25px;
-
-  padding: 16px 35px;
-
-  border: none;
-
-  border-radius: 12px;
-
-  background: white;
-
-  color: #222;
-
-  font-size: 20px;
-
-  font-weight: bold;
-
-}
-
-
-/* =========================================
-   操作説明
-========================================= */
-
-#help {
-
-  position: fixed;
-
-  z-index: 5;
-
-  bottom: 70px;
-
-  left: 50%;
-
-  transform: translateX(-50%);
-
-  width: 90%;
-
-  max-width: 500px;
-
-  padding: 10px;
-
-  border-radius: 10px;
-
-  background:
-    rgba(0,0,0,0.6);
-
-  color: white;
-
-  text-align: center;
-
-  font-size: 14px;
-
-}
-
-
-/* =========================================
-   操作ボタン
-========================================= */
-
-#controls {
-
-  position: fixed;
-
-  z-index: 6;
-
-  bottom: 15px;
-
-  left: 0;
-
-  width: 100%;
-
-  display: flex;
-
-  justify-content: center;
-
-  align-items: center;
-
-  gap: 10px;
-
-}
-
-
-.controlButton {
-
-  padding: 10px 16px;
-
-  border: none;
-
-  border-radius: 8px;
-
-  background:
-    rgba(0,0,0,0.7);
-
-  color: white;
-
-  font-size: 14px;
-
-}
-
-
-/* =========================================
-   撮影ボタン
-========================================= */
-
-#photoButton {
-
-  width: 64px;
-
-  height: 64px;
-
-  border-radius: 50%;
-
-  border: 5px solid white;
-
-  background: white;
-
-  box-shadow:
-    0 2px 10px
-    rgba(0,0,0,0.4);
-
-}
-
-
-/* =========================================
-   非表示
-========================================= */
-
-.hidden {
-
-  display: none !important;
-
-}
-
-</style>
-
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1.0,
+                 maximum-scale=1.0,
+                 user-scalable=no">
+
+  <title>聖隷クリストファー大学 卒業式AR</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: sans-serif;
+    }
+
+    /* カメラ映像 */
+    #camera {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    /* AR表示エリア */
+    #arArea {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    /* 卒業式看板 */
+    #sign {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+
+      width: 80%;
+      max-width: 500px;
+      height: auto;
+
+      transform: translate(-50%, -50%) scale(1);
+
+      transform-origin: center center;
+
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: auto;
+    }
+
+    /* 操作ボタン */
+    #controls {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 10;
+
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+
+      padding: 12px;
+
+      background: rgba(0, 0, 0, 0.45);
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+
+      padding: 10px 16px;
+
+      background: white;
+      color: #333;
+
+      font-size: 14px;
+      font-weight: bold;
+
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    /* 操作説明 */
+    #help {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+
+      z-index: 10;
+
+      width: calc(100% - 30px);
+      max-width: 500px;
+
+      padding: 9px 12px;
+
+      border-radius: 10px;
+
+      background: rgba(0, 0, 0, 0.55);
+      color: white;
+
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* カメラ開始ボタン */
+    #startScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      z-index: 20;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      background: #000;
+      color: white;
+
+      text-align: center;
+      padding: 30px;
+    }
+
+    #startScreen h1 {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    #startScreen p {
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 25px;
+    }
+
+    #startButton {
+      padding: 14px 28px;
+      font-size: 16px;
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- =====================================
-     カメラ
-====================================== -->
+  <!-- カメラ映像 -->
+  <video id="camera"
+         autoplay
+         playsinline>
+  </video>
 
-<video
-id="camera"
-autoplay
-playsinline> </video>
+  <!-- AR表示エリア -->
+  <div id="arArea">
 
-<!-- =====================================
-     AR表示
-====================================== -->
-
-<div id="ar">
-
-  <!-- PNG看板 -->
-
-  <div id="sign">
-
-```
-<img
-  src="聖隷クリストファー大学.png"
-  alt="聖隷クリストファー大学">
-```
+    <!-- 卒業式看板 -->
+    <img id="sign"
+         src="聖隷クリストファー大学.png"
+         alt="聖隷クリストファー大学">
 
   </div>
 
-</div>
+  <!-- 操作説明 -->
+  <div id="help">
+    👆 1本指：看板を移動　🤏 2本指：拡大・縮小
+  </div>
 
-<!-- =====================================
-     開始画面
-====================================== -->
+  <!-- 操作ボタン -->
+  <div id="controls">
 
-<div id="startScreen">
+    <button id="photoButton">
+      📸 撮影
+    </button>
 
-  <h1>
-    🎓 聖隷クリストファー大学 AR
-  </h1>
+    <button id="resetButton">
+      ↺ リセット
+    </button>
 
-  <p>
-    カメラを使って<br>
-    ARフォトスポットを楽しめます
-  </p>
+    <button id="toggleButton">
+      看板OFF
+    </button>
 
-  <button id="startButton">
-    📷 カメラを起動
-  </button>
+  </div>
 
-</div>
+  <!-- カメラ開始画面 -->
+  <div id="startScreen">
 
-<!-- =====================================
-     操作説明
-====================================== -->
+    <h1>聖隷クリストファー大学</h1>
 
-<div id="help">
+    <p>
+      卒業式ARフォトスポット<br>
+      カメラを起動して看板を配置してください。
+    </p>
 
-👆 1本指：看板を移動　
-🤏 2本指：拡大・縮小・回転
+    <button id="startButton">
+      📷 カメラを起動
+    </button>
 
-</div>
+  </div>
 
-<!-- =====================================
-     操作ボタン
-====================================== -->
 
-<div id="controls">
+  <script>
 
-<button
- class="controlButton"
- id="resetButton">
+    const camera = document.getElementById("camera");
+    const sign = document.getElementById("sign");
+    const arArea = document.getElementById("arArea");
 
-```
-↺ リセット
-```
+    const photoButton = document.getElementById("photoButton");
+    const resetButton = document.getElementById("resetButton");
+    const toggleButton = document.getElementById("toggleButton");
 
-  </button>
+    const startScreen = document.getElementById("startScreen");
+    const startButton = document.getElementById("startButton");
 
-<button
- id="photoButton"
- aria-label="写真を撮影"> </button>
 
-<button
- class="controlButton"
- id="hideButton">
+    /* 看板の位置・大きさ */
 
-```
-看板OFF
-```
+    let posX = 0;
+    let posY = 0;
 
-  </button>
+    let scale = 1;
 
-</div>
+    let signVisible = true;
 
-<script>
 
+    /* タッチ操作用 */
 
-/* =========================================
-   カメラ
-========================================= */
+    let touchMode = "";
 
-const camera =
-  document.getElementById("camera");
+    let startX = 0;
+    let startY = 0;
 
-const startScreen =
-  document.getElementById("startScreen");
+    let startPosX = 0;
+    let startPosY = 0;
 
-const startButton =
-  document.getElementById("startButton");
+    let startDistance = 0;
+    let startScale = 1;
 
 
-let stream = null;
+    /* 看板の表示を更新 */
 
+    function updateSign() {
 
-startButton.addEventListener(
-  "click",
-  async function() {
+      sign.style.transform =
+        "translate(calc(-50% + " +
+        posX +
+        "px), calc(-50% + " +
+        posY +
+        "px)) scale(" +
+        scale +
+        ")";
 
-    try {
-
-      stream =
-        await navigator.mediaDevices.getUserMedia({
-
-          video: {
-
-            facingMode: {
-              ideal: "environment"
-            },
-
-            width: {
-              ideal: 1920
-            },
-
-            height: {
-              ideal: 1080
-            }
-
-          },
-
-          audio: false
-
-        });
-
-
-      camera.srcObject = stream;
-
-
-      startScreen.classList.add(
-        "hidden"
-      );
-
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        "カメラを起動できませんでした。\n" +
-        "ブラウザのカメラ使用を許可してください。"
-      );
-
-    }
-
-  }
-);
-
-
-
-/* =========================================
-   看板
-========================================= */
-
-const sign =
-  document.getElementById("sign");
-
-
-let x = 0;
-let y = 0;
-
-let scale = 1;
-let rotation = 0;
-
-
-/* =========================================
-   初期位置
-========================================= */
-
-function resetSign() {
-
-  x = 0;
-  y = 0;
-
-  scale = 1;
-
-  rotation = 0;
-
-  updateSign();
-
-}
-
-
-/* =========================================
-   看板の表示位置更新
-========================================= */
-
-function updateSign() {
-
-  sign.style.transform =
-
-    "translate(calc(-50% + " +
-    x + "px), calc(-50% + " +
-    y + "px)) " +
-
-    "scale(" +
-    scale +
-    ") " +
-
-    "rotate(" +
-    rotation +
-    "deg)";
-
-}
-
-
-resetSign();
-
-
-
-/* =========================================
-   タッチ操作
-========================================= */
-
-let startX = 0;
-let startY = 0;
-
-let startDistance = 0;
-let startAngle = 0;
-
-let startScale = 1;
-let startRotation = 0;
-
-let dragging = false;
-
-
-
-/* タッチ開始 */
-
-sign.addEventListener(
-
-  "touchstart",
-
-  function(event) {
-
-    event.preventDefault();
-
-
-    /* 1本指 */
-
-    if (
-      event.touches.length === 1
-    ) {
-
-      dragging = true;
-
-      startX =
-        event.touches[0].clientX;
-
-      startY =
-        event.touches[0].clientY;
-
+      sign.style.display =
+        signVisible ? "block" : "none";
     }
 
 
-    /* 2本指 */
+    /* 2本指の距離 */
 
-    if (
-      event.touches.length === 2
-    ) {
+    function getDistance(touch1, touch2) {
 
-      dragging = false;
+      const dx = touch1.clientX - touch2.clientX;
+      const dy = touch1.clientY - touch2.clientY;
 
-
-      const p1 =
-        event.touches[0];
-
-      const p2 =
-        event.touches[1];
-
-
-      startDistance =
-        distance(p1, p2);
-
-
-      startAngle =
-        angle(p1, p2);
-
-
-      startScale =
-        scale;
-
-
-      startRotation =
-        rotation;
-
-    }
-
-  },
-
-  {
-    passive: false
-  }
-
-);
-
-
-
-/* タッチ移動 */
-
-sign.addEventListener(
-
-  "touchmove",
-
-  function(event) {
-
-    event.preventDefault();
-
-
-    /* =================================
-       1本指 → 移動
-    ================================= */
-
-    if (
-      event.touches.length === 1 &&
-      dragging
-    ) {
-
-      const dx =
-        event.touches[0].clientX
-        - startX;
-
-      const dy =
-        event.touches[0].clientY
-        - startY;
-
-
-      x += dx;
-
-      y += dy;
-
-
-      startX =
-        event.touches[0].clientX;
-
-      startY =
-        event.touches[0].clientY;
-
-
-      updateSign();
-
+      return Math.sqrt(dx * dx + dy * dy);
     }
 
 
-    /* =================================
-       2本指 → 拡大縮小・回転
-    ================================= */
+    /* タッチ開始 */
 
-    if (
-      event.touches.length === 2
-    ) {
+    arArea.addEventListener("touchstart", function(e) {
 
-      const p1 =
-        event.touches[0];
+      if (e.touches.length === 1) {
 
-      const p2 =
-        event.touches[1];
+        touchMode = "move";
 
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
 
-      const currentDistance =
-        distance(p1, p2);
-
-
-      const currentAngle =
-        angle(p1, p2);
-
-
-      /* 拡大縮小 */
-
-      scale =
-        startScale *
-        (
-          currentDistance /
-          startDistance
-        );
-
-
-      /* 大きさ制限 */
-
-      scale =
-        Math.max(
-          0.4,
-          Math.min(3, scale)
-        );
-
-
-      /* 回転 */
-
-      rotation =
-        startRotation +
-        (
-          currentAngle -
-          startAngle
-        );
-
-
-      updateSign();
-
-    }
-
-  },
-
-  {
-    passive: false
-  }
-
-);
-
-
-
-/* タッチ終了 */
-
-sign.addEventListener(
-
-  "touchend",
-
-  function(event) {
-
-    if (
-      event.touches.length === 0
-    ) {
-
-      dragging = false;
-
-    }
-
-  }
-
-);
-
-
-
-/* =========================================
-   2点間の距離
-========================================= */
-
-function distance(p1, p2) {
-
-  const dx =
-    p1.clientX -
-    p2.clientX;
-
-  const dy =
-    p1.clientY -
-    p2.clientY;
-
-
-  return Math.sqrt(
-    dx * dx +
-    dy * dy
-  );
-
-}
-
-
-
-/* =========================================
-   2点間の角度
-========================================= */
-
-function angle(p1, p2) {
-
-  return Math.atan2(
-
-    p2.clientY -
-    p1.clientY,
-
-    p2.clientX -
-    p1.clientX
-
-  ) * 180 / Math.PI;
-
-}
-
-
-
-/* =========================================
-   リセット
-========================================= */
-
-document
-  .getElementById("resetButton")
-  .addEventListener(
-
-    "click",
-
-    resetSign
-
-  );
-
-
-
-/* =========================================
-   看板ON / OFF
-========================================= */
-
-document
-  .getElementById("hideButton")
-  .addEventListener(
-
-    "click",
-
-    function() {
-
-      sign.classList.toggle(
-        "hidden"
-      );
-
-
-      if (
-        sign.classList.contains(
-          "hidden"
-        )
-      ) {
-
-        this.textContent =
-          "看板ON";
-
-      } else {
-
-        this.textContent =
-          "看板OFF";
+        startPosX = posX;
+        startPosY = posY;
 
       }
 
-    }
+      else if (e.touches.length === 2) {
 
-  );
+        touchMode = "scale";
 
+        startDistance =
+          getDistance(
+            e.touches[0],
+            e.touches[1]
+          );
 
+        startScale = scale;
+      }
 
-/* =========================================
-   写真撮影
-========================================= */
-
-document
-  .getElementById("photoButton")
-  .addEventListener(
-
-    "click",
-
-    takePhoto
-
-  );
+    }, { passive: false });
 
 
+    /* タッチ移動 */
 
-function takePhoto() {
+    arArea.addEventListener("touchmove", function(e) {
 
-  if (
-    camera.readyState < 2
-  ) {
-
-    alert(
-      "カメラがまだ準備できていません。"
-    );
-
-    return;
-
-  }
+      e.preventDefault();
 
 
-  const canvas =
-    document.createElement(
-      "canvas"
-    );
+      /* 1本指：移動 */
+
+      if (
+        e.touches.length === 1 &&
+        touchMode === "move"
+      ) {
+
+        const dx =
+          e.touches[0].clientX - startX;
+
+        const dy =
+          e.touches[0].clientY - startY;
+
+        posX = startPosX + dx;
+        posY = startPosY + dy;
+
+        updateSign();
+      }
 
 
-  canvas.width =
-    camera.videoWidth;
+      /* 2本指：拡大・縮小 */
 
-  canvas.height =
-    camera.videoHeight;
+      else if (
+        e.touches.length === 2 &&
+        touchMode === "scale"
+      ) {
 
+        const currentDistance =
+          getDistance(
+            e.touches[0],
+            e.touches[1]
+          );
 
-  const ctx =
-    canvas.getContext("2d");
+        if (startDistance > 0) {
 
+          scale =
+            startScale *
+            (currentDistance / startDistance);
 
-  /* =================================
-     カメラ映像
-  ================================= */
+          /* 小さくなりすぎないようにする */
 
-  ctx.drawImage(
+          scale =
+            Math.max(0.3, scale);
 
-    camera,
+          /* 大きくなりすぎないようにする */
 
-    0,
-    0,
+          scale =
+            Math.min(3, scale);
 
-    canvas.width,
-    canvas.height
+          updateSign();
+        }
+      }
 
-  );
-
-
-  /* =================================
-     PNG看板
-  ================================= */
-
-  if (
-    !sign.classList.contains(
-      "hidden"
-    )
-  ) {
-
-    drawSignOnCanvas(
-      ctx,
-      canvas
-    );
-
-  }
+    }, { passive: false });
 
 
-  /* =================================
-     PNGとして保存
-  ================================= */
+    /* タッチ終了 */
 
-  canvas.toBlob(
+    arArea.addEventListener("touchend", function(e) {
 
-    function(blob) {
+      if (e.touches.length === 0) {
+        touchMode = "";
+      }
 
-      const url =
-        URL.createObjectURL(blob);
+      else if (e.touches.length === 1) {
+
+        /* 2本指から1本指に戻った場合 */
+
+        touchMode = "move";
+
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+
+        startPosX = posX;
+        startPosY = posY;
+      }
+
+    });
 
 
-      const a =
-        document.createElement(
-          "a"
+    /* リセット */
+
+    resetButton.addEventListener("click", function() {
+
+      posX = 0;
+      posY = 0;
+      scale = 1;
+
+      updateSign();
+
+    });
+
+
+    /* 看板ON/OFF */
+
+    toggleButton.addEventListener("click", function() {
+
+      signVisible = !signVisible;
+
+      updateSign();
+
+      toggleButton.textContent =
+        signVisible ? "看板OFF" : "看板ON";
+
+    });
+
+
+    /* カメラ起動 */
+
+    startButton.addEventListener("click", async function() {
+
+      try {
+
+        const stream =
+          await navigator.mediaDevices.getUserMedia({
+
+            video: {
+              facingMode: {
+                ideal: "environment"
+              }
+            },
+
+            audio: false
+
+          });
+
+        camera.srcObject = stream;
+
+        startScreen.style.display = "none";
+
+      }
+
+      catch (error) {
+
+        alert(
+          "カメラを起動できませんでした。\n" +
+          "ブラウザのカメラ使用許可を確認してください。"
         );
 
+        console.error(error);
 
-      a.href = url;
+      }
 
-
-      a.download =
-        "seirei-ar-photo.png";
-
-
-      a.click();
+    });
 
 
-      URL.revokeObjectURL(url);
+    /* 撮影 */
 
-    },
+    photoButton.addEventListener("click", function() {
 
-    "image/png"
+      if (!camera.videoWidth || !camera.videoHeight) {
 
-  );
+        alert("カメラ映像がまだ準備できていません。");
 
-}
-
-
-
-/* =========================================
-   PNG看板を撮影画像に描画
-========================================= */
-
-function drawSignOnCanvas(
-  ctx,
-  canvas
-) {
+        return;
+      }
 
 
-  const image =
-    sign.querySelector("img");
+      const canvas =
+        document.createElement("canvas");
+
+      canvas.width = camera.videoWidth;
+      canvas.height = camera.videoHeight;
+
+      const ctx =
+        canvas.getContext("2d");
 
 
-  const rect =
-    sign.getBoundingClientRect();
+      /* カメラ映像を描画 */
+
+      const videoWidth =
+        camera.videoWidth;
+
+      const videoHeight =
+        camera.videoHeight;
+
+      const areaWidth =
+        arArea.clientWidth;
+
+      const areaHeight =
+        arArea.clientHeight;
 
 
-  const videoRect =
-    camera.getBoundingClientRect();
+      /*
+        object-fit: cover と同じように
+        カメラ映像をcanvasへ描画
+      */
+
+      const videoRatio =
+        videoWidth / videoHeight;
+
+      const areaRatio =
+        areaWidth / areaHeight;
+
+      let drawWidth;
+      let drawHeight;
+      let offsetX;
+      let offsetY;
 
 
-  const ratioX =
-    canvas.width /
-    videoRect.width;
+      if (videoRatio > areaRatio) {
+
+        drawHeight = areaHeight;
+        drawWidth =
+          drawHeight * videoRatio;
+
+        offsetX =
+          (areaWidth - drawWidth) / 2;
+
+        offsetY = 0;
+
+      }
+
+      else {
+
+        drawWidth = areaWidth;
+        drawHeight =
+          drawWidth / videoRatio;
+
+        offsetX = 0;
+
+        offsetY =
+          (areaHeight - drawHeight) / 2;
+
+      }
 
 
-  const ratioY =
-    canvas.height /
-    videoRect.height;
+      /*
+        カメラ映像を描画
+      */
+
+      ctx.drawImage(
+        camera,
+        offsetX,
+        offsetY,
+        drawWidth,
+        drawHeight
+      );
 
 
-  const centerX =
-    (
-      rect.left +
-      rect.width / 2
-      -
-      videoRect.left
-    ) * ratioX;
+      /* 看板が表示されている場合 */
+
+      if (
+        signVisible &&
+        sign.complete
+      ) {
+
+        const rect =
+          sign.getBoundingClientRect();
 
 
-  const centerY =
-    (
-      rect.top +
-      rect.height / 2
-      -
-      videoRect.top
-    ) * ratioY;
+        /*
+          看板の中心位置を
+          canvas上の位置へ変換
+        */
+
+        const centerX =
+          (rect.left + rect.width / 2) *
+          (canvas.width / areaWidth);
+
+        const centerY =
+          (rect.top + rect.height / 2) *
+          (canvas.height / areaHeight);
 
 
-  const width =
-    rect.width * ratioX;
+        const signWidth =
+          rect.width *
+          (canvas.width / areaWidth);
+
+        const signHeight =
+          rect.height *
+          (canvas.height / areaHeight);
 
 
-  const height =
-    rect.height * ratioY;
+        /*
+          PNGを看板として描画
+        */
+
+        ctx.drawImage(
+          sign,
+          centerX - signWidth / 2,
+          centerY - signHeight / 2,
+          signWidth,
+          signHeight
+        );
+
+      }
 
 
-  ctx.save();
+      /* 写真を保存 */
+
+      const link =
+        document.createElement("a");
+
+      link.download =
+        "seirei-graduation-ar.png";
+
+      link.href =
+        canvas.toDataURL("image/png");
+
+      link.click();
+
+    });
 
 
-  /* 中心へ移動 */
+    /* 初期表示 */
 
-  ctx.translate(
-    centerX,
-    centerY
-  );
+    updateSign();
 
-
-  /* 回転 */
-
-  ctx.rotate(
-    rotation *
-    Math.PI /
-    180
-  );
-
-
-  /* 拡大縮小 */
-
-  ctx.scale(
-    scale,
-    scale
-  );
-
-
-  /* PNGを描画 */
-
-  ctx.drawImage(
-
-    image,
-
-    -width / 2,
-    -height / 2,
-
-    width,
-    height
-
-  );
-
-
-  ctx.restore();
-
-}
-
-
-</script>
+  </script>
 
 </body>
-
 </html>

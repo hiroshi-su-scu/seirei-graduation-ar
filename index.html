@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 
 <head>
@@ -6,14 +7,18 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-      content="width=device-width,
-               initial-scale=1.0,
-               maximum-scale=1.0,
-               user-scalable=no">
+   content="width=device-width,
+            initial-scale=1.0,
+            maximum-scale=1.0,
+            user-scalable=no">
 
-<title>聖隷クリストファー大学 卒業式AR</title>
+<title>聖隷クリストファー大学 AR</title>
 
 <style>
+
+/* =========================================
+   基本設定
+========================================= */
 
 * {
   box-sizing: border-box;
@@ -38,10 +43,13 @@ body {
     "Helvetica Neue",
     Arial,
     sans-serif;
+
 }
 
 
-/* カメラ */
+/* =========================================
+   カメラ
+========================================= */
 
 #camera {
 
@@ -60,7 +68,9 @@ body {
 }
 
 
-/* AR表示領域 */
+/* =========================================
+   AR表示領域
+========================================= */
 
 #ar {
 
@@ -79,13 +89,17 @@ body {
 }
 
 
-/* 卒業式看板 */
+/* =========================================
+   PNG看板
+========================================= */
 
 #sign {
 
   position: absolute;
 
-  width: 320px;
+  width: 80%;
+
+  max-width: 500px;
 
   left: 50%;
   top: 45%;
@@ -96,24 +110,6 @@ body {
 
   transform-origin: center center;
 
-  padding: 20px 25px;
-
-  background:
-    rgba(255,255,255,0.94);
-
-  border:
-    5px solid #333;
-
-  border-radius: 12px;
-
-  box-shadow:
-    0 8px 30px
-    rgba(0,0,0,0.45);
-
-  text-align: center;
-
-  color: #222;
-
   pointer-events: auto;
 
   touch-action: none;
@@ -123,59 +119,26 @@ body {
 }
 
 
-/* 大学名 */
+/* PNGそのもの */
 
-.university {
+#sign img {
 
-  font-size: 18px;
+  display: block;
 
-  font-weight: bold;
+  width: 100%;
 
-  margin-bottom: 10px;
+  height: auto;
 
-}
+  pointer-events: none;
 
-
-/* ロゴ */
-
-.logo {
-
-  width: 75px;
-
-  height: 75px;
-
-  object-fit: contain;
-
-  margin-bottom: 5px;
+  user-select: none;
 
 }
 
 
-/* 卒業式 */
-
-.title {
-
-  font-size: 40px;
-
-  font-weight: bold;
-
-  letter-spacing: 0.15em;
-
-}
-
-
-/* 年度 */
-
-.year {
-
-  margin-top: 8px;
-
-  font-size: 16px;
-
-}
-
-
-/* 開始画面 */
+/* =========================================
+   開始画面
+========================================= */
 
 #startScreen {
 
@@ -230,7 +193,9 @@ body {
 }
 
 
-/* 操作説明 */
+/* =========================================
+   操作説明
+========================================= */
 
 #help {
 
@@ -264,7 +229,9 @@ body {
 }
 
 
-/* ボタン */
+/* =========================================
+   操作ボタン
+========================================= */
 
 #controls {
 
@@ -281,6 +248,8 @@ body {
   display: flex;
 
   justify-content: center;
+
+  align-items: center;
 
   gap: 10px;
 
@@ -305,7 +274,9 @@ body {
 }
 
 
-/* シャッター */
+/* =========================================
+   撮影ボタン
+========================================= */
 
 #photoButton {
 
@@ -326,7 +297,9 @@ body {
 }
 
 
-/* 非表示 */
+/* =========================================
+   非表示
+========================================= */
 
 .hidden {
 
@@ -338,67 +311,50 @@ body {
 
 </head>
 
-
 <body>
 
-
-<!-- カメラ -->
+<!-- =====================================
+     カメラ
+====================================== -->
 
 <video
-  id="camera"
-  autoplay
-  playsinline>
-</video>
+id="camera"
+autoplay
+playsinline> </video>
 
-
-<!-- AR -->
+<!-- =====================================
+     AR表示
+====================================== -->
 
 <div id="ar">
 
+  <!-- PNG看板 -->
 
   <div id="sign">
 
-
-    <!-- 大学ロゴ -->
-
-    <img
-      class="logo"
-      src="聖隷クリストファー大学.png"
-      alt="聖隷クリストファー大学">
-
-
-    <div class="university">
-      聖隷クリストファー大学
-    </div>
-
-
-    <div class="title">
-      卒業式
-    </div>
-
-
-    <div class="year">
-      2027年度
-    </div>
-
+```
+<img
+  src="聖隷クリストファー大学.png"
+  alt="聖隷クリストファー大学">
+```
 
   </div>
 
-
 </div>
 
-
-<!-- 開始画面 -->
+<!-- =====================================
+     開始画面
+====================================== -->
 
 <div id="startScreen">
 
   <h1>
-    🎓 卒業式AR
+    🎓 聖隷クリストファー大学 AR
   </h1>
 
   <p>
     カメラを使って<br>
-    卒業式の看板を表示します
+    ARフォトスポットを楽しめます
   </p>
 
   <button id="startButton">
@@ -407,43 +363,48 @@ body {
 
 </div>
 
-
-<!-- 操作説明 -->
+<!-- =====================================
+     操作説明
+====================================== -->
 
 <div id="help">
 
-  👆 1本指：看板を移動　
-  🤏 2本指：拡大・縮小・回転
+👆 1本指：看板を移動　
+🤏 2本指：拡大・縮小・回転
 
 </div>
 
-
-<!-- 操作ボタン -->
+<!-- =====================================
+     操作ボタン
+====================================== -->
 
 <div id="controls">
 
-  <button
-    class="controlButton"
-    id="resetButton">
-    ↺ リセット
+<button
+ class="controlButton"
+ id="resetButton">
+
+```
+↺ リセット
+```
+
   </button>
 
+<button
+ id="photoButton"
+ aria-label="写真を撮影"> </button>
 
-  <button
-    id="photoButton"
-    aria-label="写真を撮影">
-  </button>
+<button
+ class="controlButton"
+ id="hideButton">
 
+```
+看板OFF
+```
 
-  <button
-    class="controlButton"
-    id="hideButton">
-    看板OFF
   </button>
 
 </div>
-
-
 
 <script>
 
@@ -534,22 +495,9 @@ let scale = 1;
 let rotation = 0;
 
 
-/* 指操作 */
-
-let startX = 0;
-let startY = 0;
-
-let startDistance = 0;
-let startAngle = 0;
-
-let startScale = 1;
-let startRotation = 0;
-
-let dragging = false;
-
-
-
-/* 看板の初期位置 */
+/* =========================================
+   初期位置
+========================================= */
 
 function resetSign() {
 
@@ -564,6 +512,10 @@ function resetSign() {
 
 }
 
+
+/* =========================================
+   看板の表示位置更新
+========================================= */
 
 function updateSign() {
 
@@ -589,16 +541,34 @@ resetSign();
 
 
 /* =========================================
-   指1本・2本操作
+   タッチ操作
 ========================================= */
 
+let startX = 0;
+let startY = 0;
+
+let startDistance = 0;
+let startAngle = 0;
+
+let startScale = 1;
+let startRotation = 0;
+
+let dragging = false;
+
+
+
+/* タッチ開始 */
 
 sign.addEventListener(
+
   "touchstart",
+
   function(event) {
 
     event.preventDefault();
 
+
+    /* 1本指 */
 
     if (
       event.touches.length === 1
@@ -614,6 +584,8 @@ sign.addEventListener(
 
     }
 
+
+    /* 2本指 */
 
     if (
       event.touches.length === 2
@@ -647,21 +619,29 @@ sign.addEventListener(
     }
 
   },
-  { passive: false }
+
+  {
+    passive: false
+  }
+
 );
 
 
 
+/* タッチ移動 */
+
 sign.addEventListener(
+
   "touchmove",
+
   function(event) {
 
     event.preventDefault();
 
 
-    /* -------------------------
-       1本指
-    ------------------------- */
+    /* =================================
+       1本指 → 移動
+    ================================= */
 
     if (
       event.touches.length === 1 &&
@@ -678,6 +658,7 @@ sign.addEventListener(
 
 
       x += dx;
+
       y += dy;
 
 
@@ -693,9 +674,9 @@ sign.addEventListener(
     }
 
 
-    /* -------------------------
-       2本指
-    ------------------------- */
+    /* =================================
+       2本指 → 拡大縮小・回転
+    ================================= */
 
     if (
       event.touches.length === 2
@@ -726,7 +707,7 @@ sign.addEventListener(
         );
 
 
-      /* 大きくなりすぎない */
+      /* 大きさ制限 */
 
       scale =
         Math.max(
@@ -750,13 +731,21 @@ sign.addEventListener(
     }
 
   },
-  { passive: false }
+
+  {
+    passive: false
+  }
+
 );
 
 
 
+/* タッチ終了 */
+
 sign.addEventListener(
+
   "touchend",
+
   function(event) {
 
     if (
@@ -768,11 +757,14 @@ sign.addEventListener(
     }
 
   }
+
 );
 
 
 
-/* 距離 */
+/* =========================================
+   2点間の距離
+========================================= */
 
 function distance(p1, p2) {
 
@@ -784,6 +776,7 @@ function distance(p1, p2) {
     p1.clientY -
     p2.clientY;
 
+
   return Math.sqrt(
     dx * dx +
     dy * dy
@@ -792,7 +785,10 @@ function distance(p1, p2) {
 }
 
 
-/* 角度 */
+
+/* =========================================
+   2点間の角度
+========================================= */
 
 function angle(p1, p2) {
 
@@ -817,20 +813,25 @@ function angle(p1, p2) {
 document
   .getElementById("resetButton")
   .addEventListener(
+
     "click",
+
     resetSign
+
   );
 
 
 
 /* =========================================
-   看板ON/OFF
+   看板ON / OFF
 ========================================= */
 
 document
   .getElementById("hideButton")
   .addEventListener(
+
     "click",
+
     function() {
 
       sign.classList.toggle(
@@ -855,6 +856,7 @@ document
       }
 
     }
+
   );
 
 
@@ -866,9 +868,13 @@ document
 document
   .getElementById("photoButton")
   .addEventListener(
+
     "click",
+
     takePhoto
+
   );
+
 
 
 function takePhoto() {
@@ -903,7 +909,9 @@ function takePhoto() {
     canvas.getContext("2d");
 
 
-  /* カメラ映像 */
+  /* =================================
+     カメラ映像
+  ================================= */
 
   ctx.drawImage(
 
@@ -918,7 +926,9 @@ function takePhoto() {
   );
 
 
-  /* 看板 */
+  /* =================================
+     PNG看板
+  ================================= */
 
   if (
     !sign.classList.contains(
@@ -934,9 +944,12 @@ function takePhoto() {
   }
 
 
-  /* 保存 */
+  /* =================================
+     PNGとして保存
+  ================================= */
 
   canvas.toBlob(
+
     function(blob) {
 
       const url =
@@ -944,13 +957,16 @@ function takePhoto() {
 
 
       const a =
-        document.createElement("a");
+        document.createElement(
+          "a"
+        );
 
 
       a.href = url;
 
+
       a.download =
-        "seirei-graduation-ar.png";
+        "seirei-ar-photo.png";
 
 
       a.click();
@@ -959,7 +975,9 @@ function takePhoto() {
       URL.revokeObjectURL(url);
 
     },
+
     "image/png"
+
   );
 
 }
@@ -967,13 +985,18 @@ function takePhoto() {
 
 
 /* =========================================
-   看板を写真に描画
+   PNG看板を撮影画像に描画
 ========================================= */
 
 function drawSignOnCanvas(
   ctx,
   canvas
 ) {
+
+
+  const image =
+    sign.querySelector("img");
+
 
   const rect =
     sign.getBoundingClientRect();
@@ -986,6 +1009,7 @@ function drawSignOnCanvas(
   const ratioX =
     canvas.width /
     videoRect.width;
+
 
   const ratioY =
     canvas.height /
@@ -1013,6 +1037,7 @@ function drawSignOnCanvas(
   const width =
     rect.width * ratioX;
 
+
   const height =
     rect.height * ratioY;
 
@@ -1020,17 +1045,24 @@ function drawSignOnCanvas(
   ctx.save();
 
 
+  /* 中心へ移動 */
+
   ctx.translate(
     centerX,
     centerY
   );
 
 
+  /* 回転 */
+
   ctx.rotate(
     rotation *
-    Math.PI / 180
+    Math.PI /
+    180
   );
 
+
+  /* 拡大縮小 */
 
   ctx.scale(
     scale,
@@ -1038,167 +1070,22 @@ function drawSignOnCanvas(
   );
 
 
-  /* 看板背景 */
+  /* PNGを描画 */
 
-  const w =
-    width;
+  ctx.drawImage(
 
-  const h =
-    height;
+    image,
 
+    -width / 2,
+    -height / 2,
 
-  ctx.fillStyle =
-    "rgba(255,255,255,0.94)";
+    width,
+    height
 
-
-  ctx.strokeStyle =
-    "#333";
-
-
-  ctx.lineWidth =
-    5;
-
-
-  roundRect(
-    ctx,
-    -w / 2,
-    -h / 2,
-    w,
-    h,
-    12
-  );
-
-
-  ctx.fill();
-
-  ctx.stroke();
-
-
-  /* 大学名 */
-
-  ctx.fillStyle =
-    "#222";
-
-
-  ctx.textAlign =
-    "center";
-
-
-  ctx.font =
-    "bold " +
-    (18 * ratioX) +
-    "px sans-serif";
-
-
-  ctx.fillText(
-    "聖隷クリストファー大学",
-    0,
-    -h * 0.12
-  );
-
-
-  /* 卒業式 */
-
-  ctx.font =
-    "bold " +
-    (40 * ratioX) +
-    "px sans-serif";
-
-
-  ctx.fillText(
-    "卒業式",
-    0,
-    h * 0.15
-  );
-
-
-  /* 年度 */
-
-  ctx.font =
-    (16 * ratioX) +
-    "px sans-serif";
-
-
-  ctx.fillText(
-    "2027年度",
-    0,
-    h * 0.35
   );
 
 
   ctx.restore();
-
-}
-
-
-
-/* 角丸長方形 */
-
-function roundRect(
-  ctx,
-  x,
-  y,
-  width,
-  height,
-  radius
-) {
-
-  ctx.beginPath();
-
-  ctx.moveTo(
-    x + radius,
-    y
-  );
-
-  ctx.lineTo(
-    x + width - radius,
-    y
-  );
-
-  ctx.quadraticCurveTo(
-    x + width,
-    y,
-    x + width,
-    y + radius
-  );
-
-  ctx.lineTo(
-    x + width,
-    y + height - radius
-  );
-
-  ctx.quadraticCurveTo(
-    x + width,
-    y + height,
-    x + width - radius,
-    y + height
-  );
-
-  ctx.lineTo(
-    x + radius,
-    y + height
-  );
-
-  ctx.quadraticCurveTo(
-    x,
-    y + height,
-    x,
-    y + height - radius
-  );
-
-  ctx.lineTo(
-    x,
-    y + radius
-  );
-
-  ctx.quadraticCurveTo(
-    x,
-    y,
-    x + radius,
-    y
-  );
-
-  ctx.closePath();
 
 }
 
